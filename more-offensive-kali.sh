@@ -25,7 +25,7 @@ echo -e "\n[${GREEN}+${RESET}] performing ${YELLOW}updates${RESET}" && \
 
 # perform install of common tools so we aren't doing it in (almost) every function
 echo -e "\n[${GREEN}+${RESET}] installing common ${YELLOW}system tools${RESET}" && \
-    apt-get -qq install -y at yersinia gobuster python-dev python3-pip python3-dev pipenv libpcap-dev libnetfilter-queue-dev
+    apt-get -qq install -y at yersinia python-dev python3-pip python3-dev pipenv libpcap-dev libnetfilter-queue-dev
 
 # Enables the Root account without a password, needed for some functions. 
 echo -e "\n[${GREEN}+${RESET}] installing Root ${YELLOW}Without Password${RESET}" && \
