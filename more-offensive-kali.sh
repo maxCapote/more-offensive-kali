@@ -247,6 +247,19 @@ seclistsInstall(){
         git clone --depth 1 https://github.com/danielmiessler/SecLists.git 
 }
 
+# installs ssh-audit
+sshauditInstall(){
+    cd $installdir && \ 
+        echo -e "\n[${GREEN}+${RESET}] installing SSH${YELLOW}Audit${RESET}" && \
+        git clone https://github.com/jtesta/ssh-audit.git 
+}
+
+# installs rdp-sec-check
+rdpseccheckInstall(){
+    cd $installdir && \ 
+        echo -e "\n[${GREEN}+${RESET}] installing RDP-SEC-CHECK${YELLOW}2${RESET}" && \
+        https://github.com/CiscoCXSecurity/rdp-sec-check.git
+}
 
 # installs bettercap 
 bettercapInstall(){
@@ -342,6 +355,8 @@ if [ "$1" = "full" ]
        privInstall
        dirsearchInstall
        seclistsInstall
+       sshauditInstall
+       rdpseccheckInstall
        mitm6Install
        xrdpInstall
        iceBreakerInstall
