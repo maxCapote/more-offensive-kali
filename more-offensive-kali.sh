@@ -103,12 +103,10 @@ autoenumInstall() {
 cmeInstall(){
     cd $installdir && \
         echo -e "\n[${GREEN}+${RESET}] installing ${YELLOW}CrackMapExec${RESET}" && \
-        apt-get -qq install -y libssl-dev libffi-dev && \
-        pip install pipenv && \
-        git clone --recursive https://github.com/byt3bl33d3r/CrackMapExec && \
-        cd CrackMapExec && \
-        pipenv install && \
-        pipenv run python ./setup.py install
+        python3 -m pip install pipx && \
+        pipx ensurepath && \
+        apt-get -qq install -y python3-venv && \
+        pipx install crackmapexec && \
 }
 
 
@@ -334,44 +332,6 @@ installrsh(){
         apt-get -qq install -y rsh-client
 }
 
-# installs Covenant C2 Framework
-installCovenant(){
-    cd $installdir && \
-        echo -e "\n[${GREEN}+${RESET}] installing ${YELLOW}Covenant${RESET}" && \
-        apt-get -qq install -y \
-                apt-transport-https ca-certificates gnupg2 software-properties-common && \
-        curl -fsSL https://download.docker.com/linux/debian/gpg | apt-key add - && \
-        add-apt-repository \
-             "deb [arch=amd64] https://download.docker.com/linux/debian \
-             $(lsb_release -cs) \
-             stable" && \
-        apt-get -qq update && \
-        apt-get -qq install -y docker-ce && \
-        git clone --recurse-submodules https://github.com/cobbr/Covenant && \
-        git clone https://github.com/cobbr/Elite.git && \
-        cd Covenant/Covenant && \
-        docker build -t covenant . && \
-        cd $installdir/Elite/Elite && \
-        docker build -t elite . && \
-        echo "covenant(){docker run -it -p 7443:7443 -p 80:80 -p 443:443 --name covenant -v /opt/Covenant/Covenant>
-        echo "elite(){docker run -it --rm --name elite -v /opt/Elite/Elite/Data:/app/Data elite --username foresit>
-        echo -e "\n[${GREEN}+${RESET}] Usage:\nIn one terminal: ${YELLOW}covenant${RESET}\nFollow prompts.\n\nIn s>
-}
-
-# installs Veil-Evasion for payload obfuscation
-installVeil(){
-    echo -e "\n[${GREEN}+${RESET}] installing ${YELLOW}Veil${RESET}" && \
-        echo -e 'apt-get -qq update && \
-        apt-get -qq upgrade -y && \
-        dpkg --add-architecture i386 && \
-        apt-get update && \
-        apt-get install git sudo -y && \
-        git clone https://github.com/Veil-Framework/Veil.git && \
-        cd Veil/ && \
-        ./config/setup.sh --force --silent\n'
-}
-
-
 #######################
 
 # display the menu and wait for a choice.
@@ -444,8 +404,6 @@ if [ "$1" = "full" ]
        kadimusInstall
        installwifi
        installrsh
-       installCovenant
-       installVeil
 else
     while : ;
     do
