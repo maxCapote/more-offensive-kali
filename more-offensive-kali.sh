@@ -99,6 +99,19 @@ autoenumInstall() {
 	git clone https://github.com/robhughes72/auto_enum.git
 }
 
+# installs CrackMapExecute. Useful post-exploitaion and situational awareness tool.
+cmeInstall(){
+    cd $installdir && \
+        echo -e "\n[${GREEN}+${RESET}] installing ${YELLOW}CrackMapExec${RESET}" && \
+        apt-get -qq install -y libssl-dev libffi-dev && \
+        pip install pipenv && \
+        git clone --recursive https://github.com/byt3bl33d3r/CrackMapExec && \
+        cd CrackMapExec && \
+        pipenv install && \
+        pipenv run python ./setup.py install
+}
+
+
 # installs the password spray script created by Greenwolf.
 sprayInstall() {
     cd $installdir && \
@@ -258,7 +271,14 @@ sshauditInstall(){
 rdpseccheckInstall(){
     cd $installdir && \ 
         echo -e "\n[${GREEN}+${RESET}] installing RDP-SEC-CHECK${YELLOW}2${RESET}" && \
-        https://github.com/CiscoCXSecurity/rdp-sec-check.git
+        git clone https://github.com/CiscoCXSecurity/rdp-sec-check.git
+}
+
+# installs check-smb-signing
+checksmbsignInstall(){
+    cd $installdir && \ 
+        echo -e "\n[${GREEN}+${RESET}] installing check-smb-signing${YELLOW}2${RESET}" && \
+        git clone https://github.com/actuated/check-smb-signing.git
 }
 
 # installs bettercap 
@@ -300,7 +320,56 @@ installNFStools(){
 }
 
 
+# installs additional Wifi testing tools.
+installwifi(){
+    cd $HOME && \
+        echo -e "\n[${GREEN}+${RESET}] installing ${YELLOW}wifi${RESET} testing ${YELLOW}tools${RESET}" && \
+        apt-get -qq install -y hostapd-wpe hcxtools hcxdumptool hashcat
+}
 
+# installs rsh client.
+installrsh(){
+    cd $HOME && \
+        echo -e "\n[${GREEN}+${RESET}] installing ${YELLOW}rsh${RESET} client ${YELLOW}good${RESET}" && \
+        apt-get -qq install -y rsh-client
+}
+
+# installs Covenant C2 Framework
+installCovenant(){
+    cd $installdir && \
+        echo -e "\n[${GREEN}+${RESET}] installing ${YELLOW}Covenant${RESET}" && \
+        apt-get -qq install -y \
+                apt-transport-https ca-certificates gnupg2 software-properties-common && \
+        curl -fsSL https://download.docker.com/linux/debian/gpg | apt-key add - && \
+        add-apt-repository \
+             "deb [arch=amd64] https://download.docker.com/linux/debian \
+             $(lsb_release -cs) \
+             stable" && \
+        apt-get -qq update && \
+        apt-get -qq install -y docker-ce && \
+        git clone --recurse-submodules https://github.com/cobbr/Covenant && \
+        git clone https://github.com/cobbr/Elite.git && \
+        cd Covenant/Covenant && \
+        docker build -t covenant . && \
+        cd $installdir/Elite/Elite && \
+        docker build -t elite . && \
+        echo "covenant(){docker run -it -p 7443:7443 -p 80:80 -p 443:443 --name covenant -v /opt/Covenant/Covenant>
+        echo "elite(){docker run -it --rm --name elite -v /opt/Elite/Elite/Data:/app/Data elite --username foresit>
+        echo -e "\n[${GREEN}+${RESET}] Usage:\nIn one terminal: ${YELLOW}covenant${RESET}\nFollow prompts.\n\nIn s>
+}
+
+# installs Veil-Evasion for payload obfuscation
+installVeil(){
+    echo -e "\n[${GREEN}+${RESET}] installing ${YELLOW}Veil${RESET}" && \
+        echo -e 'apt-get -qq update && \
+        apt-get -qq upgrade -y && \
+        dpkg --add-architecture i386 && \
+        apt-get update && \
+        apt-get install git sudo -y && \
+        git clone https://github.com/Veil-Framework/Veil.git && \
+        cd Veil/ && \
+        ./config/setup.sh --force --silent\n'
+}
 
 
 #######################
@@ -342,6 +411,7 @@ if [ "$1" = "full" ]
        installDocker
        metasploitUpdate       
        autoenumInstall
+       cmeInstall
        powerSploit
        ghostpackInstall
        froggerInstall
@@ -357,6 +427,7 @@ if [ "$1" = "full" ]
        seclistsInstall
        sshauditInstall
        rdpseccheckInstall
+       checksmbsignInstall
        mitm6Install
        xrdpInstall
        iceBreakerInstall
@@ -371,6 +442,10 @@ if [ "$1" = "full" ]
        bettercapInstall
        evilwinrmInstall
        kadimusInstall
+       installwifi
+       installrsh
+       installCovenant
+       installVeil
 else
     while : ;
     do
