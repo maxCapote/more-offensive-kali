@@ -31,10 +31,18 @@ echo -e "\n[${GREEN}+${RESET}] installing common ${YELLOW}system tools${RESET}" 
 echo -e "\n[${GREEN}+${RESET}] installing Root ${YELLOW}Without Password${RESET}" && \
          dpkg-reconfigure kali-grant-root
 
-# Enables SSH to run at startup, needed for Remote Access. 
+# Enables SSH to run at startup, needed for Remote Access.
 echo -e "\n[${GREEN}+${RESET}] Enabling SSH ${YELLOW}Access${RESET}" && \
          systemctl enable ssh
 
+# minimal setup to allow for key-based authentication for SSH
+# authorized_keys can be pulled down by the user at a later time
+setupSSHKeyAuth(){
+    mkdir -p ~/.ssh && \
+    sed -i.bak -e 's|#PubkeyAuthentication.*|PubkeyAuthentication yes|' \
+        -e 's|#AuthorizedKeysFile.*|AuthorizedKeysFile .ssh/authorized_keys|' \
+        -e 's|PasswordAuthentication.*|PasswordAuthentication no|' /etc/ssh/sshd_config
+}
 
 # update metasploit. Updates for the latest exploits.
 metasploitUpdate(){
@@ -80,7 +88,6 @@ spartaInstall(){
         git clone https://github.com/secforce/sparta.git
 }
 
-
 # installs the auto_enumeration script created by Nick and JT. Does a good job of finding open ports and services.
 autoenumInstall() {
     cd $installdir && \
@@ -99,14 +106,12 @@ autoenumInstall() {
         # pipx install crackmapexec
 # }
 
-
 # installs the password spray script created by Greenwolf.
 sprayInstall() {
     cd $installdir && \
         echo -e "\n[${GREEN}+${RESET}] downloading/installing ${YELLOW}spray${RESET}" && \
         git clone https://github.com/Greenwolf/Spray.git
 }
-
 
 # installs SMBMAP. Share Enumeration and Lateral Movement.
 smbmapInstall(){
@@ -153,7 +158,6 @@ installImpacket(){
 	python3 ./setup.py install
 }
 
-
 ##############################
 
 # installs testssl.sh. Useful for validating SSL/TLS.
@@ -163,7 +167,6 @@ testsslInstall(){
 	apt-get -qq install -y git && \
 	git clone https://github.com/drwetter/testssl.sh
 }
-
 
 # installs  users
 usersInstall(){
@@ -181,53 +184,52 @@ passwordsInstall(){
 
 # installs privesc - selection of priv esc scripts
 privInstall(){
-    cd $installdir && \ 
+    cd $installdir && \
         echo -e "\n[${GREEN}+${RESET}] installing Password${YELLOW}File${RESET}" && \
         git clone https://github.com/robhughes72/privesc.git
 }
 
 # installs dirsearch
 dirsearchInstall(){
-    cd $installdir && \ 
+    cd $installdir && \
         echo -e "\n[${GREEN}+${RESET}] installing dirsearch${YELLOW}file${RESET}" && \
-        git clone https://github.com/maurosoria/dirsearch.git 
+        git clone https://github.com/maurosoria/dirsearch.git
 }
 
 # installs SecLists
 seclistsInstall(){
-    cd $installdir && \ 
+    cd $installdir && \
         echo -e "\n[${GREEN}+${RESET}] installing SecLists${YELLOW}file${RESET}" && \
-        git clone --depth 1 https://github.com/danielmiessler/SecLists.git 
+        git clone --depth 1 https://github.com/danielmiessler/SecLists.git
 }
 
 # installs ssh-audit
 sshauditInstall(){
-    cd $installdir && \ 
+    cd $installdir && \
         echo -e "\n[${GREEN}+${RESET}] installing SSH${YELLOW}Audit${RESET}" && \
-        git clone https://github.com/jtesta/ssh-audit.git 
+        git clone https://github.com/jtesta/ssh-audit.git
 }
 
 # installs rdp-sec-check
 rdpseccheckInstall(){
-    cd $installdir && \ 
+    cd $installdir && \
         echo -e "\n[${GREEN}+${RESET}] installing RDP-SEC-CHECK${YELLOW}2${RESET}" && \
         git clone https://github.com/CiscoCXSecurity/rdp-sec-check.git
 }
 
 # installs check-smb-signing
 checksmbsignInstall(){
-    cd $installdir && \ 
+    cd $installdir && \
         echo -e "\n[${GREEN}+${RESET}] installing check-smb-signing${YELLOW}2${RESET}" && \
         git clone https://github.com/actuated/check-smb-signing.git
 }
 
-# installs bettercap 
+# installs bettercap
 bettercapInstall(){
-    cd $installdir && \ 
+    cd $installdir && \
         echo -e "\n[${GREEN}+${RESET}] installing${YELLOW}bettercap${RESET}" && \
         apt install bettercap -y
 }
-
 
 # installs kadimus LFI scanner
 kadimusInstall(){
@@ -236,7 +238,7 @@ kadimusInstall(){
         apt-get -qq install -y libcurl4-openssl-dev libpcre3-dev libssh-dev && \
         git clone https://github.com/P0cL4bs/Kadimus.git && \
         cd Kadimus && \
-        make 
+        make
 }
 
 # installs Remmina RDP client.
@@ -291,8 +293,6 @@ installCovenant(){
         dotnet build
 }
 
-
-
 #######################
 
 # display the menu and wait for a choice.
@@ -300,7 +300,7 @@ menu(){
     echo -e \
 "More Offensive Kali - By Rob Hughes\n\n\
 What you want to do?\n\n\
-	0 Enable SSH\n\
+	0 Setup SSH Key-Based Authentication\n\
 	1 Install zprezto\n\
 	2 Install auto_enumeration\n\
 	3 Install CrackMapExec\n\
@@ -329,7 +329,7 @@ What you want to do?\n\n\
 
 if [ "$1" = "full" ]
    then
-       metasploitUpdate       
+       metasploitUpdate
        autoenumInstall
        powerSploit
        ghostpackInstall
@@ -358,13 +358,13 @@ if [ "$1" = "full" ]
        installrsh
        installCovenant
        installgobuster
-else 
+else
     while : ;
     do
 	menu
 	read -rp "Enter choice: " choice
 	case $choice in
-	    0)enableSSH;;
+	    0)setupSSHKeyAuth;;
 	    1)installZSH;;
 	    2)autoenumInstall;;
 	    3)cmeInstall;;
@@ -387,10 +387,9 @@ else
 	    20)installCovenant;;
 	    21)fuzzbunchInstall;;
 	    22)installVeil;;
-	    23)enableSSH && installZSH && autoenumInstall && cmeInstall && powerSploit && metasploitInstall && iceBreakerInstall && sshAuditInstall && rdpSecCheckInstall && testsslInstall && sslscanInstall && onesixtyoneInstall && terminatorInstall && installNfstools && installFTPStuff && installRemmina && installRIDenum && installEmpire && installDeathStar && installImpacket && installResponder && fuzzbunchInstall && installVeil;;
+	    23)setupSSHKeyAuth && installZSH && autoenumInstall && cmeInstall && powerSploit && metasploitInstall && iceBreakerInstall && sshAuditInstall && rdpSecCheckInstall && testsslInstall && sslscanInstall && onesixtyoneInstall && terminatorInstall && installNfstools && installFTPStuff && installRemmina && installRIDenum && installEmpire && installDeathStar && installImpacket && installResponder && fuzzbunchInstall && installVeil;;
 	    24)clear && break ;;
 	    *) echo -e "\n[${RED}!${RESET}]Choice not in list" >&2; exit 2
 	esac
     done
 fi
-
